@@ -89,7 +89,32 @@ sensor 2:
    name: 'Patch Stump'
    unit_of_measurement: 'ºF'
    value_template: '{{ value_json.outsidetemp }}'
-
+sensor 3:
+ - platform: mqtt
+   state_topic: '/sensor/soil'
+   name: 'Soil 1'
+   unit_of_measurement: '%'
+   value_template: '{{ value_json.Soil0 }}'
+ - platform: mqtt
+   state_topic: '/sensor/soil'
+   name: 'Soil 2'
+   unit_of_measurement: '%'
+   value_template: '{{ value_json.Soil1 }}'
+ - platform: mqtt
+   state_topic: '/sensor/soil'
+   name: 'Soil 3'
+   unit_of_measurement: '%'
+   value_template: '{{ value_json.Soil2 }}'
+ - platform: mqtt
+   state_topic: '/sensor/soil'
+   name: 'Soil 4'
+   unit_of_measurement: '%'
+   value_template: '{{ value_json.Soil3 }}'
+ - platform: mqtt
+   state_topic: '/sensor/soil'
+   name: 'Soil 5'
+   unit_of_measurement: '%'
+   value_template: '{{ value_json.Soil4 }}'    
 # Weather Conditions, I like darksky platform best
 sensor:
   - platform: wunderground
@@ -196,3 +221,6 @@ notify:
   name: alerts_sms
   platform: pushbullet
   api_key: o.MxUOWvEZJjLmcY4bGCY11d4I8KBvpejj
+group: !include groups.yaml
+#automation: !include automations.yaml
+script: !include scripts.yaml

@@ -1,0 +1,35 @@
+default_view:
+  name: Home
+  view: no
+internet_speed_group:
+  name: Internet Speed
+  #view: yes
+  entities:
+    - sensor.speedtest_download
+    - sensor.speedtest_ping
+    - sensor.speedtest_upload
+Wallace_group:
+  control: hidden
+  name: Wallace
+  #view: yes
+  entities:
+    - switch.Box_Fan_MQTT
+    - switch.Heat_Lamp_MQTT
+    - switch.Mist_1_MQTT
+    - switch.Mist_2_MQTT
+    - sensor.HumTemp
+    - sensor.Humidity  
+    - sensor.Inside
+    - sensor.Outside
+    - sensor.Patch_Stump
+    - sensor.Soil_1
+    - sensor.Soil_2
+    - sensor.Soil_3
+    - sensor.Soil_4
+    - sensor.Soil_5
+JR_group:
+  control: hidden
+  name: JR
+  entities:
+    - sensor.HumTemp
+    - sensor.Humidity
