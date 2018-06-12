@@ -1,0 +1,198 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Stella
+  # Location required to calculate the time the sun rises and sets
+  latitude: 41.661631
+  longitude: -111.833146
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 4554
+  # metric for Metric, imperial for Imperial
+  unit_system: imperial
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: America/Denver
+  # Customization file
+  customize: !include customize.yaml
+
+# Show links to resources in log and frontend
+# introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+http:
+  # Secrets are defined in the file secrets.yaml
+  # api_password: !secret http_password
+  # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+  # base_url: example.duckdns.org:8123
+  api_password: !secret hass_pass
+  ssl_certificate: /home/homeassistant/dehydrated/certs/alexkrycek.duckdns.org/fullchain.pem
+  ssl_key: /home/homeassistant/dehydrated/certs/alexkrycek.duckdns.org/privkey.pem
+  base_url: alexkrycek.duckdns.org:8123
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# Discover some devices automatically
+# discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+# Text to speech
+tts:
+  - platform: google
+
+automation: !include automations.yaml
+
+sensor 1:
+ - platform: mqtt
+   state_topic: '/sensor/temperature'
+   name: 'HumTemp'
+   unit_of_measurement: '°F'
+   value_template: '{{ value_json.temperature }}'
+ - platform: mqtt
+   state_topic: '/sensor/temperature'
+   name: 'Humidity'
+   unit_of_measurement: '%'
+   value_template: '{{ value_json.humidity }}'
+#two onewire temp via mqtt   
+sensor 2:
+ - platform: mqtt
+   state_topic: '/sensor/wire'
+   name: 'Inside'
+   unit_of_measurement: '°F'
+   value_template: '{{ value_json.insidetemp }}'
+ - platform: mqtt
+   state_topic: '/sensor/wire'
+   name: 'Outside'
+   unit_of_measurement: '°F'
+   value_template: '{{ value_json.wallace }}'
+ - platform: mqtt
+   state_topic: '/sensor/wire'
+   name: 'Patch Stump'
+   unit_of_measurement: 'ºF'
+   value_template: '{{ value_json.outsidetemp }}'
+
+# Weather Conditions, I like darksky platform best
+sensor:
+  - platform: wunderground
+    api_key: 0f56a28f02dbbb4b
+    name: Weather
+    monitored_conditions:
+      - relative_humidity
+      - precip_1d_in
+      - precip_1d  
+      - temp_f
+      - wind_mph  
+mqtt:
+  broker: localhost 
+  port: 1883
+  client_id: home-assistant-1
+  keepalive: 60
+  username: mqtt
+  password: mqtt
+  protocol: 3.1 
+
+
+switch 1:
+  - platform: mqtt
+    name: "Box Fan MQTT"
+    state_topic: "/house/switchConfirm1/"
+    command_topic: "/house/switch1/"
+    payload_on: "0"
+    payload_off: "1"
+    qos: 0
+    retain: true    
+  
+switch 2:
+  - platform: mqtt
+    name: "Heat Lamp MQTT"
+    state_topic: "/house/switchConfirm2/"
+    command_topic: "/house/switch2/"
+    payload_on: "0"
+    payload_off: "1"
+    qos: 0
+    retain: true    
+
+switch 3:
+  - platform: mqtt
+    name: "Mist 1 MQTT"
+    state_topic: "/house/switchConfirm3/"
+    command_topic: "/house/switch3/"
+    payload_on: "0"
+    payload_off: "1"
+    qos: 0
+    retain: true    
+  
+switch 4:
+  - platform: mqtt
+    name: "Mist 2 MQTT"
+    state_topic: "/house/switchConfirm4/"
+    command_topic: "/house/switch4/"
+    payload_on: "0"
+    payload_off: "1"
+    qos: 0
+    retain: true
+
+# GPIO Switches, change the ports # to match the GPIO# that you want to connect to (relay)
+# -- port #2 is connected to the negative (black) wire of a 5v LED light. Positive connects straight to +5v
+#switch:
+#  - platform: rpi_gpio
+#    ports:
+      #17: Heat Lamp R17
+      #      08: R08
+      #27: R27
+      #22: Box Fan R22
+      #23: R23
+      #24: R24
+      #25: R25
+      #    invert_logic: true
+
+# Air Temperature Thermostat AC Mode, adjust target temp to your needs. Its adjustable on states dashboard too.
+climate 1:
+  - platform: generic_thermostat
+    name: Fan
+    heater: switch.Box_Fan_MQTT
+    target_sensor: sensor.HumTemp
+    min_temp: 65
+    max_temp: 90
+    ac_mode: on
+    target_temp: 85
+    tolerance: 0.5
+    min_cycle_duration: 00:02
+
+# Fish Tank Water Heater Thermostat, adjust target temp to your needs. Its adjustable on states dashboard too.
+climate 2:
+  - platform: generic_thermostat
+    name: Heating Lamp
+    heater: switch.Heat_Lamp_MQTT
+    target_sensor: sensor.HumTemp
+    min_temp: 65
+    max_temp: 75
+    target_temp: 65
+    tolerance: 0.5
+    min_cycle_duration: 00:02
+
+# This API service is called in the Automations.yaml for Alarms.
+# You will need to create a free pushbullet account and replace the x's below with your unique api key if you want notifications on your phone
+notify: 
+  name: alerts_sms
+  platform: pushbullet
+  api_key: o.MxUOWvEZJjLmcY4bGCY11d4I8KBvpejj

@@ -1,0 +1,187 @@
+# High Humidity state, I intend to use a relay to control a fan to circulate the humid air through underground perforated pipe, Low Grade Geothermal cooling & dehumidify
+  - alias: Humidity Control Dehumidify
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_humidity
+      above: 70
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 10
+    action:
+      - service: switch.turn_on
+        entity_id: switch.dehumidify_r4
+      - condition: numeric_state
+        entity_id: sensor.dht_humidity
+        below: 70
+      - service: switch.turn_off
+        entity_id: switch.dehumidify_r4
+
+# Low humidity state, switches on relay for 120v water valve for mist nozzles
+  - alias: Humidity Control Mist
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_humidity
+      below: 50
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    action:
+      - service: switch.turn_on
+        entity_id: switch.mist_r3
+      - condition: numeric_state
+        entity_id: sensor.dht_humidity
+        above: 50
+      - service: switch.turn_off
+        entity_id: switch.mist_r3
+
+# Humidity state in normal range, this automation is a backup control so humidity is not being controlled when conditions are ideal. 
+  - alias: Humidity Normal
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_humidity
+      above: 51
+      below: 69
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    action:
+      service: switch.turn_off
+      entity_id:
+        - switch.dehumidify_r4
+        - switch.mist_r3
+
+# I plan to circulate water 15 minutes per hour based on my pump size (6000gph) and water capacity (1200gal) using the "CHOPS" Aquaponics style system.
+  - alias: Water Pump Cycle Timer 15min/hr
+    trigger:
+      - platform: time
+        minutes: '/60'
+        seconds: 00
+      - platform: state
+        entity_id: switch.water_pump_r2 
+    action:
+      - service: switch.turn_on
+        entity_id: switch.water_pump_r2
+      - delay: '00:15:00'
+      - service: switch.turn_off
+        entity_id: switch.water_pump_r2
+
+# Fish Feeder runs at 7am in the morning and 7pm in the evening every day for 30 seconds each time
+  - alias: Fish Feeder run at 7-AM
+    trigger:
+      - platform: time
+        at: '07:00:00'
+      - platform: state
+        entity_id: switch.feeder_r1
+    action:
+      - service: switch.turn_on
+        entity_id: switch.feeder_r1
+      - delay: '00:00:30'
+      - service: switch.turn_off
+        entity_id: switch.feeder_r1
+
+  - alias: Fish Feeder run at 7-PM
+    trigger:
+      - platform: time
+        at: '19:00:00'
+      - platform: state
+        entity_id: switch.feeder_r1
+    action:
+      - service: switch.turn_on
+        entity_id: switch.feeder_r1
+      - delay: '00:00:30'
+      - service: switch.turn_off
+        entity_id: switch.feeder_r1
+
+# The following automations are for Pushbullet Alarms if temps or humidity get out of control too long
+  - alias: Air Temp High Alarm SMS
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_air_temperature
+      above: 85
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    action: 
+      - service: notify.alerts_sms
+        data:
+          message: "AIR TEMP ABOVE 85*f EXCEEDING 5 MINUTES"
+          title: "AIR TEMP HIGH ALARM"
+
+  - alias: Air Temp Low Alarm SMS
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_air_temperature
+      below: 55
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    action: 
+      - service: notify.alerts_sms
+        data:
+          message: "AIR TEMP BELOW 55*f EXCEEDING 5 MINUTES"
+          title: "AIR TEMP LOW ALARM"
+
+  - alias: Humidity High Alarm SMS
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_humidity
+      above: 70
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    action: 
+      - service: notify.alerts_sms
+        data:
+          message: "HUMIDITY ABOVE 70% EXCEEDING 5 MINUTES"
+          title: "HUMIDITY HIGH ALARM"
+
+  - alias: Humidity Low Alarm SMS
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.dht_humidity
+      below: 50
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    action: 
+      - service: notify.alerts_sms
+        data:
+          message: "HUMIDITY BELOW 50 EXCEEDING 5 MINUTES"
+          title: "HUMIDITY LOW ALARM"
+
+  - alias: Water Temp High Alarm SMS
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.water_temperature
+      above: 76
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    action: 
+      - service: notify.alerts_sms
+        data:
+          message: "WATER TEMP ABOVE 76*f EXCEEDING 5 MINUTES"
+          title: "WATER TEMP HIGH ALARM"
+
+  - alias: Water Temp Low Alarm SMS
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.water_temperature
+      below: 50
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+    action: 
+      - service: notify.alerts_sms
+        data:
+          message: "WATER TEMP BELOW 50*f EXCEEDING 5 MINUTES"
+          title: "WATER TEMP LOW ALARM"
