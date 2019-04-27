@@ -57,10 +57,12 @@ sun:
 
 # Text to speech
 tts:
-  - platform: google
+  - platform: google_translate
+    service_name: google_say
 
 automation: !include automations.yaml
-
+shell_command:
+  play_sound: omxplayer -p -o local /home/homeassistant/countdown.mp3
 sensor 1:
  - platform: mqtt
    state_topic: '/sensor/temperature'
@@ -115,6 +117,12 @@ sensor 3:
    name: 'Soil 5'
    unit_of_measurement: '%'
    value_template: '{{ value_json.Soil4 }}'    
+sensor 4:
+  - platform: mqtt
+    state_topic: /sensor/water
+    name: Water Pressure
+    unit_of_measurement: 'PSI'
+    value_template: '{{ value_json.WaterPSI }}'
 # Weather Conditions, I like darksky platform best
 sensor:
   - platform: wunderground
@@ -214,13 +222,30 @@ climate 2:
     target_temp: 65
     tolerance: 0.5
     min_cycle_duration: 00:02
-
+climate 3:
+  - platform: generic_thermostat
+    name: Mist
+    heater: switch.Mist_2_MQTT
+    target_sensor: sensor.Soil_5
+    min_temp: 50
+    max_temp: 100
+    target_temp: 100
+    tolerance: 0.5 
+plant:
+  Wallace Stump:
+    sensors:
+      moisture: sensor.Soil_1
+      temperature: sensor.Patch_Stump
+    min_moisture: 20
+    max_moisture: 80
+    min_temperature: 15
+    max_temperature: 50
 # This API service is called in the Automations.yaml for Alarms.
 # You will need to create a free pushbullet account and replace the x's below with your unique api key if you want notifications on your phone
-notify: 
-  name: alerts_sms
-  platform: pushbullet
-  api_key: o.MxUOWvEZJjLmcY4bGCY11d4I8KBvpejj
+#notify: 
+#  name: alerts_sms
+#  platform: pushbullet
+#  api_key: o.MxUOWvEZJjLmcY4bGCY11d4I8KBvpejj
 group: !include groups.yaml
 #automation: !include automations.yaml
 script: !include scripts.yaml

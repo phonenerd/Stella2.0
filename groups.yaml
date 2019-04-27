@@ -1,17 +1,10 @@
 default_view:
   name: Home
   view: no
-internet_speed_group:
-  name: Internet Speed
-  #view: yes
-  entities:
-    - sensor.speedtest_download
-    - sensor.speedtest_ping
-    - sensor.speedtest_upload
 Wallace_group:
   control: hidden
   name: Wallace
-  #view: yes
+  view: true
   entities:
     - switch.Box_Fan_MQTT
     - switch.Heat_Lamp_MQTT
@@ -27,9 +20,9 @@ Wallace_group:
     - sensor.Soil_3
     - sensor.Soil_4
     - sensor.Soil_5
-JR_group:
-  control: hidden
-  name: JR
-  entities:
     - sensor.HumTemp
-    - sensor.Humidity
+    - sensor.Humidity 
+    - sensor.Water_Pressure 
+    - plant.Wallace_Stump
+    - climate.Fan
+    - climate.Heating_Lamp
