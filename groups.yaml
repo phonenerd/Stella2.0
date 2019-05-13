@@ -1,10 +1,14 @@
 default_view:
   name: Home
-  view: no
+  view: true
+  icon: mdi:home
+  entities:
+    - camera.Plant
 Wallace_group:
   control: hidden
   name: Wallace
   view: true
+  icon: mdi:alien
   entities:
     - switch.Box_Fan_MQTT
     - switch.Heat_Lamp_MQTT
@@ -15,14 +19,23 @@ Wallace_group:
     - sensor.Inside
     - sensor.Outside
     - sensor.Patch_Stump
-    - sensor.Soil_1
-    - sensor.Soil_2
-    - sensor.Soil_3
-    - sensor.Soil_4
-    - sensor.Soil_5
+    - sensor.Far  
+    - sensor.Stump
+    - sensor.Long
+    - sensor.Right
+    - sensor.Middle
+    - sensor.Left
     - sensor.HumTemp
     - sensor.Humidity 
     - sensor.Water_Pressure 
     - plant.Wallace_Stump
     - climate.Fan
     - climate.Heating_Lamp
+    - light.Hot_House  
+Camara_group:
+  control: hidden
+  name: Camera
+  view: true
+  icon: mdi:cctv
+  entities:
+    - camera.Plant_Camera  

@@ -21,7 +21,7 @@ frontend:
 
 # Enables configuration UI
 config:
-
+ffmpeg:
 http:
   # Secrets are defined in the file secrets.yaml
   # api_password: !secret http_password
@@ -60,7 +60,13 @@ tts:
   - platform: google_translate
     service_name: google_say
 
-automation: !include automations.yaml
+#automation: !include automations.yaml
+
+camera:
+  - platform: onvif
+    host: 192.168.2.50
+    name: Plant Camera
+
 shell_command:
   play_sound: omxplayer -p -o local /home/homeassistant/countdown.mp3
 sensor 1:
@@ -91,30 +97,35 @@ sensor 2:
    name: 'Patch Stump'
    unit_of_measurement: 'ºF'
    value_template: '{{ value_json.outsidetemp }}'
+ - platform: mqtt
+   state_topic: '/sensor/wire'
+   name: 'Far'
+   unit_of_measurement: 'Â'
+   value_template: '{{ value_json.Far }}'
 sensor 3:
  - platform: mqtt
    state_topic: '/sensor/soil'
-   name: 'Soil 1'
+   name: 'Stump'
    unit_of_measurement: '%'
    value_template: '{{ value_json.Soil0 }}'
  - platform: mqtt
    state_topic: '/sensor/soil'
-   name: 'Soil 2'
+   name: 'Long'
    unit_of_measurement: '%'
    value_template: '{{ value_json.Soil1 }}'
  - platform: mqtt
    state_topic: '/sensor/soil'
-   name: 'Soil 3'
+   name: 'Right'
    unit_of_measurement: '%'
    value_template: '{{ value_json.Soil2 }}'
  - platform: mqtt
    state_topic: '/sensor/soil'
-   name: 'Soil 4'
+   name: 'Middle'
    unit_of_measurement: '%'
    value_template: '{{ value_json.Soil3 }}'
  - platform: mqtt
    state_topic: '/sensor/soil'
-   name: 'Soil 5'
+   name: 'Left'
    unit_of_measurement: '%'
    value_template: '{{ value_json.Soil4 }}'    
 sensor 4:
@@ -124,16 +135,16 @@ sensor 4:
     unit_of_measurement: 'PSI'
     value_template: '{{ value_json.WaterPSI }}'
 # Weather Conditions, I like darksky platform best
-sensor:
-  - platform: wunderground
-    api_key: 0f56a28f02dbbb4b
-    name: Weather
-    monitored_conditions:
-      - relative_humidity
-      - precip_1d_in
-      - precip_1d  
-      - temp_f
-      - wind_mph  
+#sensor:
+#  - platform: wunderground
+#    api_key: 0f56a28f02dbbb4b
+#    name: Weather
+#    monitored_conditions:
+#      - relative_humidity
+#      - precip_1d_in
+#      - precip_1d  
+#      - temp_f
+#      - wind_mph  
 mqtt:
   broker: localhost 
   port: 1883
@@ -203,26 +214,38 @@ climate 1:
   - platform: generic_thermostat
     name: Fan
     heater: switch.Box_Fan_MQTT
-    target_sensor: sensor.HumTemp
+    target_sensor: sensor.Patch_Stump
     min_temp: 65
     max_temp: 90
-    ac_mode: on
+    ac_mode: true
     target_temp: 85
-    tolerance: 0.5
+    #tolerance: 0.5
     min_cycle_duration: 00:02
+climate 2:
+  - platform: generic_thermostat
+    name: Mist
+    heater: switch.Mist_1_MQTT
+    target_sensor: sensor.Patch_Stump
+    min_temp: 65
+    max_temp: 90
+    ac_mode: true
+    target_temp: 85
+    #tolerance: 0.5
+    #    min_cycle_duration: 00:02
 
 # Fish Tank Water Heater Thermostat, adjust target temp to your needs. Its adjustable on states dashboard too.
-climate 2:
+climate 3:
   - platform: generic_thermostat
     name: Heating Lamp
     heater: switch.Heat_Lamp_MQTT
-    target_sensor: sensor.HumTemp
+    target_sensor: sensor.Patch_Stump
+    ac_mode: false 
     min_temp: 65
     max_temp: 75
     target_temp: 65
-    tolerance: 0.5
+    #tolerance: 0.5
     min_cycle_duration: 00:02
-climate 3:
+climate 4:
   - platform: generic_thermostat
     name: Mist
     heater: switch.Mist_2_MQTT
@@ -230,7 +253,7 @@ climate 3:
     min_temp: 50
     max_temp: 100
     target_temp: 100
-    tolerance: 0.5 
+    #    tolerance: 0.5 
 plant:
   Wallace Stump:
     sensors:
@@ -246,6 +269,47 @@ plant:
 #  name: alerts_sms
 #  platform: pushbullet
 #  api_key: o.MxUOWvEZJjLmcY4bGCY11d4I8KBvpejj
+light:
+  - platform: mqtt
+    schema: json
+    name: "Hot House"
+    state_topic: "LED/stella"
+    command_topic: "LED/stella/set"
+    effect: true
+    effect_list:
+      - bpm
+      - candy cane
+      - confetti
+      - cyclon rainbow
+      - dots
+      - fire
+      - glitter
+      - juggle
+      - lightning
+      - noise
+      - police all
+      - police one
+      - rainbow
+      - rainbow with glitter
+      - ripple
+      - sinelon
+      - solid
+      - twinkle
+    brightness: true
+    flash: true
+    rgb: true
+    optimistic: false
+    qos: 0
+#device_tracker:
+#  - platform: nmap_tracker
+#hosts: 10.0.1.0/24
+#home_interval: 15
+#exclude:
+#  - 10.0.1.254
+#    new_device_defaults:
+#      track_new_devices: true
+#      hide_if_away: true
 group: !include groups.yaml
-#automation: !include automations.yaml
+automation: !include automations.yaml
 script: !include scripts.yaml
+notify: !include notify.yaml

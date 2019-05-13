@@ -6,6 +6,17 @@
       # encoding: 'utf-8'  
     action:
       - service: shell_command.play_sound
+  - alias: "Porch Animation Speed"
+    initial_state: True
+    hide_entity: False
+    trigger:
+      - platform: state
+        entity_id: input_slider.porch_animation_speed
+    action:
+      - service: mqtt.publish
+        data_template:
+          topic: "LED/stella/set"
+          payload: '{"transition":{{ trigger.to_state.state | int }}}'
 # High Humidity state, I intend to use a relay to control a fan to circulate the humid air through underground perforated pipe, Low Grade Geothermal cooling & dehumidify
 #  - alias: Humidity Control Dehumidify
 #    trigger:
