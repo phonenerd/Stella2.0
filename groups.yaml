@@ -31,6 +31,7 @@ Wallace_group:
     - plant.Wallace_Stump
     - climate.Fan
     - climate.Heating_Lamp
+    - climate.Mist
     - light.Hot_House  
 Camara_group:
   control: hidden
